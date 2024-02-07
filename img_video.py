@@ -1,5 +1,5 @@
 import os 
-import cv2
+# import cv2
 import time
 from PIL import Image
 import streamlit as st
