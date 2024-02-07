@@ -6,6 +6,7 @@ import streamlit as st
 from moviepy.editor import AudioFileClip, VideoFileClip,TextClip,CompositeVideoClip, concatenate_videoclips
 from moviepy.video.tools.subtitles import SubtitlesClip
 import pysrt
+import imageio
 
 
 def img_size():
@@ -41,6 +42,7 @@ def img_size():
         # 이미지 객체 닫기
         image.close()
 
+#cv2 안쓰고 구현 
 def img_video():
     video_folder = 'output_video'
     # 출력 디렉토리가 존재하지 않으면 생성    
@@ -61,34 +63,79 @@ def img_video():
     image_files.sort()
 
     # 첫 번째 이미지를 기반으로 동영상 크기 설정
-    first_image = cv2.imread(os.path.join(image_dir, image_files[0]))
+    first_image = imageio.imread(os.path.join(image_dir, image_files[0]))
     frame_width, frame_height = first_image.shape[1], first_image.shape[0]
 
     # 동영상 작성자 생성
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     video_path = os.path.join(video_folder, video_filename)
-    out = cv2.VideoWriter(video_path, fourcc, frame_rate, (frame_width, frame_height))
+    writer = imageio.get_writer(video_path, fps=frame_rate)
 
     # 이미지를 프레임으로 추가하여 동영상 생성
     for image_file in image_files:
         image_path = os.path.join(image_dir, image_file)
-        frame = cv2.imread(image_path)
-        out.write(frame)
+        frame = imageio.imread(image_path)
+        writer.append_data(frame)
         
         # 프레임 간 딜레이 추가
+        writer.append_data(frame)
         time.sleep(frame_delay)
 
     # 동영상 작성 종료
-    out.release()
+    writer.close()
     # 이미지 파일 삭제
     for image_file in image_files:
         image_path = os.path.join(image_dir, image_file)
         os.remove(image_path)
-# # 사용 예시
-# image_dir = 'output_images'  # 이미지 파일이 저장된 디렉토리 경로
-# image_extension = ('.jpg', '.png')  # 이미지 파일의 확장자 (jpg, png 등)
-# video_filename = 'output_video.mp4'  # 동영상 파일명
-# img_video(image_dir, image_extension, video_filename)
+
+##cv2써서 구현
+# def img_video():
+#     video_folder = 'output_video'
+#     # 출력 디렉토리가 존재하지 않으면 생성    
+#     if not os.path.exists(video_folder):
+#         os.makedirs(video_folder)        
+#     # 이미지 파일이 저장된 디렉토리 경로
+#     image_dir = 'output_images'
+#     # 이미지 파일의 확장자 (일반적으로 .jpg, .png 등)
+#     image_extension = ('.jpg', '.png')
+#     # 동영상 파일명
+#     video_filename = 'output_video.mp4'
+#     # 동영상 프레임 속도 (fps)
+#     frame_rate = 0.5
+#     # 프레임 간 딜레이 설정 (초)
+#     frame_delay = 0.1  # 0.1초 (100 밀리초) 딜레이
+#     # 이미지 파일을 정렬하여 가져오기
+#     image_files = [f for f in os.listdir(image_dir) if f.endswith(image_extension)]
+#     image_files.sort()
+
+#     # 첫 번째 이미지를 기반으로 동영상 크기 설정
+#     first_image = cv2.imread(os.path.join(image_dir, image_files[0]))
+#     frame_width, frame_height = first_image.shape[1], first_image.shape[0]
+
+#     # 동영상 작성자 생성
+#     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+#     video_path = os.path.join(video_folder, video_filename)
+#     out = cv2.VideoWriter(video_path, fourcc, frame_rate, (frame_width, frame_height))
+
+#     # 이미지를 프레임으로 추가하여 동영상 생성
+#     for image_file in image_files:
+#         image_path = os.path.join(image_dir, image_file)
+#         frame = cv2.imread(image_path)
+#         out.write(frame)
+        
+#         # 프레임 간 딜레이 추가
+#         time.sleep(frame_delay)
+
+#     # 동영상 작성 종료
+#     out.release()
+#     # 이미지 파일 삭제
+#     for image_file in image_files:
+#         image_path = os.path.join(image_dir, image_file)
+#         os.remove(image_path)
+# # # 사용 예시
+# # image_dir = 'output_images'  # 이미지 파일이 저장된 디렉토리 경로
+# # image_extension = ('.jpg', '.png')  # 이미지 파일의 확장자 (jpg, png 등)
+# # video_filename = 'output_video.mp4'  # 동영상 파일명
+# # img_video(image_dir, image_extension, video_filename)
 
 #비디오 오디오 병합
 def video_audio():
