@@ -6,10 +6,10 @@ import streamlit as st
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
-client = OpenAI()
-# client = OpenAI(
-#     api_key = st.secrets["api_key"]
-# )
+# client = OpenAI()
+client = OpenAI(
+    api_key = st.secrets["api_key"]
+)
 
 #명언만들기
 def generate_saying(user_input):    
